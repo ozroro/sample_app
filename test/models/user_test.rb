@@ -76,13 +76,21 @@ class UserTest < ActiveSupport::TestCase
 
   test "associated microposts shuld be destroyed" do
     @user.save
-    #　create と　create!は、返り値が前者は成功かエラーの真偽値、
-    # 後者は作られたオブジェクトであり、また後者はエラーの場合例外を発生させる
-    # この場合単に失敗した場合に例外を上げてほしいだけで!を外してもテストは成功する
+
     @user.microposts.create!(content: "Lorem ipsum")
     assert_difference 'Micropost.count', -1 do
       @user.destroy
     end
   end
 
+  test "should follow and unfollow a user" do
+    michael = users(:michael)
+    archer  = users(:archer)
+    assert_not michael.following?(archer)
+    michael.follow(archer)
+    assert michael.following?(archer)
+    assert archer.followers.include?(michael)
+    michael.unfollow(archer)
+    assert_not michael.following?(archer)
+  end
 end
